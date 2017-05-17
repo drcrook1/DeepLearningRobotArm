@@ -10,6 +10,14 @@ Servo liftServo;
 Servo reachServo;
 Servo clawServo;
 
+bool trainMode = true; 
+bool waiting = true;
+
+//INPUT BUTTONS
+const int stopButtonPin = A5;
+const int modeButtonPin = 13;
+const int startButtonPin = A4;
+
 int const potPin = A0; // analog pin used to connect the potentiometer
 
 int const stickXPin = A1;
@@ -58,12 +66,16 @@ void setup() {
   reachAngle = 90;
   liftAngle = 90;
   openClaw = false;
+
+  pinMode(stopButtonPin, INPUT);
+  pinMode(startButtonPin, INPUT);
+  pinMode(modeButtonPin, INPUT);
   
   // set the servo pins
   swivelServo.attach(8); // attaches the servo on pin 8 to the servo object
   liftServo.attach(7);
   reachServo.attach(4);
-  clawServo.attach(2);
+  clawServo.attach(3);
   
   // set starting position 
   swivelServo.write(90);
@@ -79,28 +91,14 @@ void setup() {
   Serial.begin(9600); // open a serial connection to your computer
 }
 
-void loop() {
-  //
+void trainloop()
+{
+   //
   // read values from input controls
   potVal = analogRead(potPin); 
   stickXVal = analogRead(stickXPin);
   stickYVal = analogRead(stickYPin);
   stickSwitchVal = analogRead(stickSwitchPin);
-
-  //
-  // print out the value to the serial monitor
-  Serial.print("potVal: ");
-  Serial.print(potVal);
-
-  Serial.print("  stickXVal: ");
-  Serial.print(stickXVal);
-  
-  Serial.print("  stickYVal: ");
-  Serial.print(stickYVal);
-
-  Serial.print("  stickSwitchVal: ");
-  Serial.println(stickSwitchVal);
-
   //
   // scale the numbers from the inputs and set angles
   //swivelAngle = map(potVal, 0, 1023, 0, 179);
@@ -128,30 +126,75 @@ void loop() {
   swivelServo.write(swivelAngle);
   reachServo.write(reachAngle);
   liftServo.write(liftAngle);
+  clawAngle = 45;
   if (openClaw == true) {
     clawServo.write(45);
   } else {
     clawServo.write(-90);
+    clawAngle = -90;
   }
 
-  Serial.print("liftAngle: ");
-  Serial.print(liftAngle);
-
-  Serial.print("  reachAngle: ");
-  Serial.print(reachAngle);
-  
-  Serial.print("  swivelAngle: ");
-  Serial.print(swivelAngle);
-
-  Serial.print("  openClaw: ");
-  Serial.println(openClaw);
-  Serial.println();
-
+  //send data to pi
+  Serial.println("swivel,"+swivelAngle+",reach,"+reachAngle+",lift,"+liftAngle+",claw,"+clawAngle)
   // wait for the servo to get there
   delay(10);
   prevStickXVal = stickXVal;
   prevStickYVal = stickYVal;
+}
 
+void performloop()
+{
+  controls = Serial.read()
+  int commaIndex = controls.indexOf(',');
+  //  Search for the next comma just after the first
+  int secondCommaIndex = myString.indexOf(',', commaIndex + 1);
+  int thirdCommaIndex = myString.indexOf(',', secondCommaIndex + 1);
+  swivelAngle = myString.substring(0, commaIndex).toint();
+  reachAngle = myString.substring(commaIndex + 1, secondCommaIndex).toint();
+  liftAngle = myString.substring(secondCommaIndex + 1, thirdCommaIndex).toint();
+  clawAngle = myString.substring(thirdCommaIndex + 1).toint(); // To the end of the string
+  swivelServo.write(swivelAngle);
+  reachServo.write(reachAngle);
+  liftServo.write(liftAngle);
+  clawServo.write(clawAngle);
+  delay(10);
+}
+
+void loop() {
+ 
+  //read values from buttons
+  float stopState = analogRead(stopButtonPin);
+  float startState = analogRead(startButtonPin);
+  int modeState = digitalRead(modeButtonPin);
+  
+  if(startState < 50.0)
+  {
+    if(modeState == 1)
+        {
+          Serial.println("start,train");
+          trainMode = true;
+        }
+        else{
+          Serial.println("start,perform");
+          trainMode = false;
+        }
+        waiting = false;
+  }
+
+  if(stopState < 50.0)
+  {
+    Serial.println("stop");
+    waiting = true;
+  }
+
+  if(!waiting){
+    if(trainMode){
+      trainloop();
+    }
+    else {
+      performloop();
+    }
+  }
 }
 
 
