@@ -23,7 +23,7 @@ spec:
           path: /usr/lib/x86_64-linux-gnu
       containers:
       - command: ["/bin/sh", "-c"]
-        args: ["export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu_custom:$LD_LIBRARY_PATH; python /app/TensorFlow_K8/TrainClassifier.py"]
+        args: ["export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu_custom:$LD_LIBRARY_PATH; python /app/TensorFlow_K8/TrainModel.py"]
         image: drcrook/cifar10:gpu
         imagePullPolicy: Always
         name: tensorflow-cifar10-train

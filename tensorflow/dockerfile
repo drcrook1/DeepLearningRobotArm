@@ -1,0 +1,12 @@
+FROM gcr.io/tensorflow/tensorflow:latest-gpu
+
+RUN apt-get update
+RUN apt-get install -qq build-essential libssl-dev libffi-dev python-dev curl
+
+ADD requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+
+
+EXPOSE 80
+
+COPY ./ /app/TensorFlow_K8 
