@@ -113,6 +113,14 @@ void trainloop()
   // prevStickXVal = 500 stickXVal = 0 (joystick moves up) (arm reachs out)
   reachAngle = reachAngle + 2*(map((middleXVal - stickXVal), -500, 500, -5, 5));
   liftAngle = map(potVal, 0, 1023, 0, 179);
+  if(reachAngle > 180){
+    reachAngle = 180;
+  } 
+  else if(reachAngle < -180)
+  {
+    reachAngle = -180;
+  }
+  
 
   //
   // check if joystick button is clicked
@@ -126,7 +134,7 @@ void trainloop()
   swivelServo.write(swivelAngle);
   reachServo.write(reachAngle);
   liftServo.write(liftAngle);
-  clawAngle = 45;
+  int clawAngle = 45;
   if (openClaw == true) {
     clawServo.write(45);
   } else {
@@ -135,7 +143,7 @@ void trainloop()
   }
 
   //send data to pi
-  Serial.println("swivel,"+swivelAngle+",reach,"+reachAngle+",lift,"+liftAngle+",claw,"+clawAngle)
+  Serial.println("swivel,"+String(swivelAngle)+",reach,"+String(reachAngle)+",lift,"+String(liftAngle)+",claw,"+String(clawAngle));
   // wait for the servo to get there
   delay(10);
   prevStickXVal = stickXVal;
@@ -144,15 +152,15 @@ void trainloop()
 
 void performloop()
 {
-  controls = Serial.read()
+  String controls = Serial.readString();
   int commaIndex = controls.indexOf(',');
   //  Search for the next comma just after the first
-  int secondCommaIndex = myString.indexOf(',', commaIndex + 1);
-  int thirdCommaIndex = myString.indexOf(',', secondCommaIndex + 1);
-  swivelAngle = myString.substring(0, commaIndex).toint();
-  reachAngle = myString.substring(commaIndex + 1, secondCommaIndex).toint();
-  liftAngle = myString.substring(secondCommaIndex + 1, thirdCommaIndex).toint();
-  clawAngle = myString.substring(thirdCommaIndex + 1).toint(); // To the end of the string
+  int secondCommaIndex = controls.indexOf(',', commaIndex + 1);
+  int thirdCommaIndex = controls.indexOf(',', secondCommaIndex + 1);
+  swivelAngle = controls.substring(0, commaIndex).toInt();
+  reachAngle = controls.substring(commaIndex + 1, secondCommaIndex).toInt();
+  liftAngle = controls.substring(secondCommaIndex + 1, thirdCommaIndex).toInt();
+  int clawAngle = controls.substring(thirdCommaIndex + 1).toInt(); // To the end of the string
   swivelServo.write(swivelAngle);
   reachServo.write(reachAngle);
   liftServo.write(liftAngle);
@@ -167,7 +175,7 @@ void loop() {
   float startState = analogRead(startButtonPin);
   int modeState = digitalRead(modeButtonPin);
   
-  if(startState < 50.0)
+  if(startState < 5.0)
   {
     if(modeState == 1)
         {
@@ -181,11 +189,16 @@ void loop() {
         waiting = false;
   }
 
-  if(stopState < 50.0)
+  if(stopState < 1.0)
   {
     Serial.println("stop");
     waiting = true;
   }
+  //Serial.print("stop: ");
+  //Serial.println(stopState);
+  //Serial.print("start: ");
+  //Serial.println(startState);
+  delay(10);
 
   if(!waiting){
     if(trainMode){
