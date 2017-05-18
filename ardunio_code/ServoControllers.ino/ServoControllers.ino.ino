@@ -171,11 +171,11 @@ void performloop()
 void loop() {
  
   //read values from buttons
-  float stopState = analogRead(stopButtonPin);
+  //float stopState = analogRead(stopButtonPin);
   float startState = analogRead(startButtonPin);
   int modeState = digitalRead(modeButtonPin);
   
-  if(startState < 5.0)
+  if(startState < 5.0 && waiting == true)
   {
     if(modeState == 1)
         {
@@ -189,11 +189,11 @@ void loop() {
         waiting = false;
   }
 
-  if(stopState < 1.0)
-  {
-    Serial.println("stop");
-    waiting = true;
-  }
+  //if(stopState < 1.0 && waiting == false)
+  //{
+    //Serial.println("stop");
+    //waiting = true;
+  //}
   //Serial.print("stop: ");
   //Serial.println(stopState);
   //Serial.print("start: ");
