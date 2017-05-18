@@ -6,6 +6,6 @@ ser = serial.Serial('/dev/ttyACM0', 9600)
 
 while 1 :
 	print(ser.readline())
-	ser.write('0,90,14,-90')
-	time.sleep(2)
-	ser.write('0,90,14,45')
+	#user.write('0,90,14,-90')
+	#time.sleep(2)
+	#ser.write('0,90,14,45')

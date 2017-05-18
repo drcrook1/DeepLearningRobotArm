@@ -12,4 +12,5 @@ import picamera
 with picamera.PiCamera() as camera:
 	camera.vflip = True
 	camera.hflip = True
+	camera.contrast = 50
 	camera.capture('image.jpg')
