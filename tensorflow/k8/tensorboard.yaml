@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tensorboard
+  name: tensorboard
+spec:
+  ports:
+  - port: 80
+    targetPort: 6006
+  selector:
+    app: tensorboard
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: tensorboard
+  name: tensorboard
+spec:
+  template:
+    metadata:
+      labels:
+        app: tensorboard
+    spec:
+      volumes:
+      - name: azurefile
+        azureFile:
+            secretName: azure-secret
+            shareName: cifar10
+            readOnly: true      
+      containers:
+      - name: tensorboard
+        command: ["/bin/sh", "-c"]
+        args: ["tensorboard --logdir /data/Tensorboard"]
+        image: tensorflow/tensorflow
+        ports:
+        - containerPort: 6006
+        volumeMounts:
+        - mountPath: "/data"
+          name: azurefile

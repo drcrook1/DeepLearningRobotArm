@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: tensorflow-trainer
+  name: tensorflow-trainer-3
+spec:
+  template:
+    metadata:
+      name: tensorflow-trainer
+    spec:
+      volumes:
+      - name: azurefile
+        azureFile:
+            secretName: azure-secret
+            shareName: cifar10
+            readOnly: false
+      - name: binaries
+        hostPath:
+          path: /usr/bin/
+      - name: libraries
+        hostPath:
+          path: /usr/lib/x86_64-linux-gnu
+      containers:
+      - command: ["/bin/sh", "-c"]
+        args: ["export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu_custom:$LD_LIBRARY_PATH; python /app/TensorFlow_K8/TrainClassifier.py"]
+        image: drcrook/cifar10:gpu
+        imagePullPolicy: Always
+        name: tensorflow-cifar10-train
+        resources:
+          limits:
+            alpha.kubernetes.io/nvidia-gpu: 2
+        volumeMounts:
+        - mountPath: "/data/cifar10"
+          name: azurefile
+        - mountPath: /usr/bin/
+          name: binaries
+        - mountPath: /usr/lib/x86_64-linux-gnu_custom
+          name: libraries
+      restartPolicy: Never
