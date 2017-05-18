@@ -21,6 +21,7 @@ def read_and_decode(filename_queue, image_shape, label_shape):
     img_sample = tf.reshape(img_sample, image_shape)
     label = tf.decode_raw(features['label'], tf.float32)
     label = tf.reshape(label, label_shape)
+    label = tf.squeeze(label)
     return img_sample, label
 
 def read_inputs(file_paths, batch_size, capacity=1000, min_after_dequeue=900, num_threads=2, img_shape=None, label_shape=None):

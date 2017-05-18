@@ -4,19 +4,19 @@ Author: David Crook
 Copyright Microsoft Corporation 2017
 """
 
-MODEL_NAME = "CIFAR_10_VGG3_50neuron_1pool_33_55_filters_1e-4lr_adam"
+MODEL_NAME = "robot_servo_arm_test"
 
 DEBUG = True
 
 IMAGE_SHAPE = (480, 720, 3)
-LABEL_SHAPE = (4)
+LABEL_SHAPE = (4, 1)
 NUM_CLASSES = 4
 
-INPUT_PIPELINE_THREADS = 16
+INPUT_PIPELINE_THREADS = 4
 #batch size * minibatches = # samples in data set or greater.
-BATCH_SIZE = 1000
+BATCH_SIZE = 1
 MINI_BATCHES = 50
-EPOCHS = 500
+EPOCHS = 10
 CHECKPOINT_EPOCHS = 25
 LEARNING_RATE = 1e-4
 
